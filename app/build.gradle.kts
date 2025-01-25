@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.torre.room_sqlite_jcompose"
+    namespace = "com.torre.proyectofinal"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.torre.room_sqlite_jcompose"
+        applicationId = "com.torre.proyectofinal"
         minSdk = 26
         targetSdk = 35
         versionCode = 1
