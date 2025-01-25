@@ -1,4 +1,4 @@
-package com.torre.proyectofinal
+package com.torre.proyectofinal.data
 
 import androidx.room.Dao
 import androidx.room.Insert

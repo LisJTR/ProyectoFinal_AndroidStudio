@@ -1,4 +1,4 @@
-package com.torre.proyectofinal
+package com.torre.proyectofinal.data
 
 import android.content.Context
 import androidx.room.Database

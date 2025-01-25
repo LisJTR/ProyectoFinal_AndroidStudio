@@ -1,8 +1,9 @@
-package com.torre.proyectofinal
+package com.torre.proyectofinal.viewmodel
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.torre.proyectofinal.data.UserDao
 
 // Esta clase es un 'Factory' que se usa para crear instancias del ViewModel
 // MainViewModelFactory es una clase que extiende de 'ViewModelProvider.Factory'

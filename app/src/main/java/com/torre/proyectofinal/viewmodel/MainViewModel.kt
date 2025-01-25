@@ -1,4 +1,4 @@
-package com.torre.proyectofinal
+package com.torre.proyectofinal.viewmodel
 
 import android.content.Context
 import android.util.Log
@@ -6,6 +6,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.torre.proyectofinal.data.User
+import com.torre.proyectofinal.data.UserDao
 import kotlinx.coroutines.launch
 
 
