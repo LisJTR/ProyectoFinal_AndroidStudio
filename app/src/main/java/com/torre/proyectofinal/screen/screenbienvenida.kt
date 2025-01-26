@@ -14,6 +14,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.torre.proyectofinal.R  // Asegúrate de tener esta importación si la imagen está en recursos
+import com.torre.proyectofinal.navigation.AppNavigator.navigateToinicioUser
+
 
 @Composable
 fun ScreenBienvenida(navController: NavController) {
@@ -38,12 +40,12 @@ fun ScreenBienvenida(navController: NavController) {
 
         // Botón para navegar a la siguiente pantalla
         Button(
-            onClick = {
+            onClick = {  // La acción que se ejecuta cuando el botón es presionado
                 // Cuando el botón es presionado, navegamos a la pantalla del formulario
-                navController.navigate("userFormScreen")
+                navigateToinicioUser(navController)  // Llama al método de navegación 'navigateToBienvenida' de AppNavigator
             }
         ) {
-            Text("Go to Registration Form")
+            Text("Start")
         }
     }
 }

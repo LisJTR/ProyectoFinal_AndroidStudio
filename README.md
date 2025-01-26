@@ -203,7 +203,8 @@ fácil, serializando automáticamente los datos JSON a objetos Java/Kotlin.
 ![Establecimiento de puntos clave y planificación](Imagenes/analisisyplanificacion.png)
 
 
-## 3 Commit: Inicio de implementacion de la estructura planificada
+## 3 Commit: Inicio de implementacion de la estructura planificada :
+##           Restructuración de proyecto y creación de pantalla de Bienvenida
 
 ### 1. Restructuración de orden de clases del proyecto
 
@@ -230,4 +231,57 @@ proyecto, no presentó demasiada complicación. El proceso fue directo, ya que s
 lugar donde se debía establecer la implementación de la interfaz de usuario (UI). En el
 MainActivity, simplemente se realizó una referencia para llamar a esta pantalla.
 
+ * Funcionalidad más relevante 
+
+     ```Botón para navegar a la siguiente pantalla
+        Button(
+            onClick = {  // La acción que se ejecuta cuando el botón es presionado
+                // Cuando el botón es presionado, navegamos a la pantalla del formulario
+                AppNavigator.navigateToBienvenida(navController)  // Llama al método de navegación 'navigateToBienvenida' de AppNavigator
+            }
+        ) 
+     ```
+    !Al tener la navegación entre las pantallas centralizado en la clase AppNavigator, solo hay que 
+    llamar a la función de la clase que indique la pantalla que se quiero ir ¡¡¡
+          
 ![Pantalla de Bienvenida](Imagenes/pantallabienvenida.png)
+
+## 4 Commit: Cambios UI de la pantalla de Inicio y establecimiento de condiciones de navegación 
+##         entre pantallas: Modificación UI Inicio | implantación de condiciones de navegación 
+
+ * Funcionalidad más relevantes
+
+    ```Botón de validación entre pantallas
+        Button(
+            onClick = {
+                if (name.value.isBlank() || email.value.isBlank()) {
+                    errorMessage.value = "Ambos campos son obligatorios."
+                } else {
+                    errorMessage.value = ""
+                    userViewModel.getUserByEmail(email.value) { user ->
+                        if (user != null) {
+                            navigateToConsultaUser(navController, user)
+
+                        } else {
+                            navigateToRegistroUser(navController)
+                        }
+                    }
+                }
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Consultar Usuario")
+        }
+     ```
+    - !Las condiciónes para la navegacion entre pantallas se decidio resolver con un if 
+     ya que las condiciones de la navegación era clara: 
+        * Si : los datos introducidos coincidian con los datos de la BBDD se va a la pantalla de Consula
+        * Sino : se va a la pantalla de registro
+
+    - La consulta a la BBDD se hizo a trávez de una query en la clase UserData , que en la encargada
+      de comunicarse con la BBDD
+   
+    ```@Query("SELECT * FROM user WHERE email = :email LIMIT 1")
+        suspend fun getUserByEmail(email: String): User?
+
+    ```

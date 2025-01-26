@@ -3,16 +3,17 @@ package com.torre.proyectofinal
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.runtime.Composable
+import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.torre.proyectofinal.navigation.AppNavigator
+import androidx.navigation.navArgument
 import com.torre.proyectofinal.screen.ScreenBienvenida
-import com.torre.proyectofinal.screen.UserScreen
+import com.torre.proyectofinal.screen.InicioUserScreen
 import com.torre.proyectofinal.screen.RegistroScreen
 import com.torre.proyectofinal.viewmodel.MainViewModel
 import com.torre.proyectofinal.viewmodel.MainViewModelFactory
 import com.torre.proyectofinal.data.AppDatabase
+import com.torre.proyectofinal.screen.ConsultaScreen
 
 class MainActivity : ComponentActivity() {
 
@@ -37,13 +38,27 @@ class MainActivity : ComponentActivity() {
                     // Aquí colocamos la pantalla de bienvenida
                     ScreenBienvenida(navController = navController)
                 }
-                composable("userFormScreen") {
+                composable("inicioUserScreen") {
                     // Pantalla de formulario de usuario
-                    UserScreen(userViewModel = userViewModel, navController = navController)
+                    InicioUserScreen(userViewModel = userViewModel, navController = navController)
                 }
-                composable("successScreen") {
+                composable("registroScreen") {
                     // Pantalla de éxito
                     RegistroScreen(navController = navController)
+                }
+                composable(
+                    "consultaUserScreen/{userName}/{userEmail}",
+                    arguments = listOf(
+                        navArgument("userName") { type = NavType.StringType },
+                        navArgument("userEmail") { type = NavType.StringType }
+                    )
+                ) { backStackEntry ->
+                    // Recuperar los argumentos
+                    val userName = backStackEntry.arguments?.getString("userName") ?: ""
+                    val userEmail = backStackEntry.arguments?.getString("userEmail") ?: ""
+
+                    // Pasar los valores a la pantalla de consulta
+                    ConsultaScreen(navController = navController, userName = userName, userEmail = userEmail)
                 }
             }
         }

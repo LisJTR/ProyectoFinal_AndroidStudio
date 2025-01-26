@@ -19,4 +19,10 @@ interface UserDao {
     // Al ser un método suspend, también será ejecutado de forma asincrónica.
     @Query("SELECT * FROM user")
     suspend fun getAllUsers(): List<User> // Devuelve una lista de usuarios (objetos User)
+
+
+
+    @Query("SELECT * FROM user WHERE email = :email LIMIT 1")
+    suspend fun getUserByEmail(email: String): User?
+
 }

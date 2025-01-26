@@ -8,10 +8,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.torre.proyectofinal.data.User
 import com.torre.proyectofinal.data.UserDao
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-
-
-
+import kotlinx.coroutines.withContext
 
 
 class MainViewModel(private val userDao: UserDao, private val context: Context) : ViewModel() {
@@ -36,6 +35,20 @@ class MainViewModel(private val userDao: UserDao, private val context: Context) 
             _userList.postValue(userDao.getAllUsers())  // Obtener todos los usuarios y actualizar LiveData
         }
     }
+
+
+    // Método para obtener un usuario por su correo electrónico
+    fun getUserByEmail(email: String, onResult: (User?) -> Unit) {
+        viewModelScope.launch {
+            val user = withContext(Dispatchers.IO) {
+                val foundUser = userDao.getUserByEmail(email)
+                Log.d("MainViewModel", "User found: $foundUser")  // Verificar si el usuario se encuentra
+                return@withContext foundUser
+            }
+            onResult(user)  // Esto debería devolver el valor correctamente
+        }
+    }
+
 
     // Método para obtener la ruta de la base de datos
     private fun logDatabasePath() {
