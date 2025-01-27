@@ -283,5 +283,7 @@ MainActivity, simplemente se realizó una referencia para llamar a esta pantalla
    
     ```@Query("SELECT * FROM user WHERE email = :email LIMIT 1")
         suspend fun getUserByEmail(email: String): User?
-
     ```
+
+## 5 Modificación UI Registro 
+

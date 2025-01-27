@@ -44,7 +44,7 @@ class MainActivity : ComponentActivity() {
                 }
                 composable("registroScreen") {
                     // Pantalla de éxito
-                    RegistroScreen(navController = navController)
+                    RegistroScreen(navController = navController, userViewModel = userViewModel)
                 }
                 composable(
                     "consultaUserScreen/{userName}/{userEmail}",

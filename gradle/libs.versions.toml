@@ -15,6 +15,7 @@ lifecycle_version = "2.6.1"
 navigationCompose = "2.8.5"
 runtimeLivedata = "1.7.6"
 uiTestAndroid = "1.7.2"
+storage = "1.5.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -40,6 +41,7 @@ androidx-lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecy
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 androidx-runtime-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata", version.ref = "runtimeLivedata" }
 androidx-ui-test-android = { group = "androidx.compose.ui", name = "ui-test-android", version.ref = "uiTestAndroid" }
+androidx-storage = { group = "androidx.test.services", name = "storage", version.ref = "storage" }
 
 
 [plugins]

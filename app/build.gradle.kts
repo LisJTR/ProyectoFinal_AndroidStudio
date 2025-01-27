@@ -65,6 +65,7 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.runtime.livedata)
+    implementation(libs.androidx.storage)
     //implementation(libs.androidx.ui.test.android) // Room Runtime
     kapt(libs.androidx.room.compiler) // Room Compiler
     implementation("androidx.room:room-ktx:2.5.2")
