@@ -120,7 +120,7 @@ fun InicioUserScreen(userViewModel: MainViewModel, navController: NavController)
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Consultar Usuario")
+            Text("Inicio de Sesión")
         }
 
 

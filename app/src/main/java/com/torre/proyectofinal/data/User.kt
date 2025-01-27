@@ -16,5 +16,11 @@ data class User(
     val name: String,
 
     // La propiedad 'email' es otra columna de la tabla que almacenará el correo electrónico del usuario.
-    val email: String
+    val email: String,
+
+    // Fecha de registro en formato String (puedes usar Long si prefieres timestamp)
+    val registrationDate: String,
+
+    // Contador de accesos
+    val accessCount: Int = 0
 )

@@ -285,5 +285,7 @@ MainActivity, simplemente se realizó una referencia para llamar a esta pantalla
         suspend fun getUserByEmail(email: String): User?
     ```
 
-## 5 Modificación UI Registro 
+## 5 Modificación UI Registro | Implementación de notificación
+
+## 6 Implementación de notificación datos UI y datos de fecha y contador
 

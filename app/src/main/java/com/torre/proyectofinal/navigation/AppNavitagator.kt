@@ -26,9 +26,9 @@ object AppNavigator {
 
     // Navega a la pantalla de consulta de usuario pasando su nombre y correo electrónico.
     fun navigateToConsultaUser(navController: NavController, user: User) {
-        // Navega a la pantalla "consultaUserScreen" pasando el nombre y el correo del usuario en la URL.
-        navController.navigate("consultaUserScreen/${user.name}/${user.email}")
+        navController.navigate("consultaUserScreen/${user.email}")
     }
+
 
     // Aquí se podrían agregar más métodos de navegación si en el futuro se añaden nuevas pantallas.
     // Cada método sería responsable de manejar la navegación hacia una pantalla específica de la app.

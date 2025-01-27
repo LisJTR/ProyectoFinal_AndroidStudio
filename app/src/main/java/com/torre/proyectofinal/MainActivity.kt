@@ -47,18 +47,16 @@ class MainActivity : ComponentActivity() {
                     RegistroScreen(navController = navController, userViewModel = userViewModel)
                 }
                 composable(
-                    "consultaUserScreen/{userName}/{userEmail}",
+                    "consultaUserScreen/{userEmail}",
                     arguments = listOf(
-                        navArgument("userName") { type = NavType.StringType },
                         navArgument("userEmail") { type = NavType.StringType }
                     )
                 ) { backStackEntry ->
                     // Recuperar los argumentos
-                    val userName = backStackEntry.arguments?.getString("userName") ?: ""
                     val userEmail = backStackEntry.arguments?.getString("userEmail") ?: ""
 
                     // Pasar los valores a la pantalla de consulta
-                    ConsultaScreen(navController = navController, userName = userName, userEmail = userEmail)
+                    ConsultaScreen(navController = navController, userEmail = userEmail, mainViewModel = userViewModel)
                 }
             }
         }

@@ -15,45 +15,41 @@ import kotlinx.coroutines.withContext
 
 class MainViewModel(private val userDao: UserDao, private val context: Context) : ViewModel() {
 
-    // LiveData para mantener y observar la lista de usuarios
     private val _userList = MutableLiveData<List<User>>(emptyList())
     val userList: LiveData<List<User>> get() = _userList
 
-    // Método para insertar un nuevo usuario
     fun addUser(name: String, email: String) {
-        val user = User(name = name, email = email)
+        val registrationDate = getCurrentDate() // Obtener la fecha de registro
+        val user = User(name = name, email = email, registrationDate = registrationDate)
         viewModelScope.launch {
-            userDao.insert(user)  // Insertar el usuario en la base de datos
-            loadUsers()  // Recargar la lista de usuarios después de la inserción
-            logDatabasePath()  // Agregar log para mostrar la ruta de la base de datos
+            userDao.insert(user) // Insertar el usuario en la base de datos
+            loadUsers() // Recargar la lista de usuarios
         }
     }
 
-    // Método para obtener todos los usuarios
     fun loadUsers() {
         viewModelScope.launch {
-            _userList.postValue(userDao.getAllUsers())  // Obtener todos los usuarios y actualizar LiveData
+            _userList.postValue(userDao.getAllUsers())
         }
     }
 
-
-    // Método para obtener un usuario por su correo electrónico
+    // Método para obtener un usuario por correo
     fun getUserByEmail(email: String, onResult: (User?) -> Unit) {
         viewModelScope.launch {
-            val user = withContext(Dispatchers.IO) {
-                val foundUser = userDao.getUserByEmail(email)
-                Log.d("MainViewModel", "User found: $foundUser")  // Verificar si el usuario se encuentra
-                return@withContext foundUser
-            }
-            onResult(user)  // Esto debería devolver el valor correctamente
+            val user = userDao.getUserByEmail(email)
+            onResult(user)
         }
     }
 
+    // Incrementar el contador de accesos
+    fun incrementAccessCount(email: String) {
+        viewModelScope.launch {
+            userDao.incrementAccessCount(email) // Incrementa el contador en la base de datos
+        }
+    }
 
-    // Método para obtener la ruta de la base de datos
-    private fun logDatabasePath() {
-        // Aquí obtenemos la ruta de la base de datos
-        val databasePath = context.getDatabasePath("user_database").absolutePath
-        Log.d("MainViewModel", "Database Path: $databasePath")
+    private fun getCurrentDate(): String {
+        val currentDate = java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault()).format(java.util.Date())
+        return currentDate
     }
 }
