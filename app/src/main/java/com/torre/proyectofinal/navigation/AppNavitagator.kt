@@ -29,6 +29,9 @@ object AppNavigator {
         navController.navigate("consultaUserScreen/${user.email}")
     }
 
+    fun navigateToFinApp(navController: NavController) {
+        navController.navigate("finApp")  // Navegar a la pantalla FinApp
+    }
 
     // Aquí se podrían agregar más métodos de navegación si en el futuro se añaden nuevas pantallas.
     // Cada método sería responsable de manejar la navegación hacia una pantalla específica de la app.

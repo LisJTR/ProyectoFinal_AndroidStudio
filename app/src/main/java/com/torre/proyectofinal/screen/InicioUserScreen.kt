@@ -29,15 +29,13 @@ fun InicioUserScreen(userViewModel: MainViewModel, navController: NavController)
     val email = remember { mutableStateOf("") }
     val errorMessage = remember { mutableStateOf("") }
 
-    // Observando la lista de usuarios en el ViewModel
-    val users = userViewModel.userList.observeAsState(emptyList())
+    // Observamos la película aleatoria desde el ViewModel
+    val movie = userViewModel.movies.observeAsState()
 
-    // Llamamos a loadUsers() cuando la pantalla se cargue
-    // Esto recargará la lista de usuarios desde la base de datos.
+    // Cargamos la película aleatoria cuando se inicia la pantalla
     LaunchedEffect(Unit) {
-        userViewModel.loadUsers()
+        userViewModel.getRandomMovie("en-US")  // O el idioma que prefieras
     }
-
 
     Column(
         modifier = Modifier
@@ -83,24 +81,6 @@ fun InicioUserScreen(userViewModel: MainViewModel, navController: NavController)
             )
         }
 
-        // Link para ir a la pantalla de registro
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(end = 8.dp),
-            horizontalArrangement = Arrangement.End
-        ) {
-            Text(
-                text = "Regístrate",
-                fontSize = 12.sp,
-                modifier = Modifier.clickable {
-                    navigateToRegistroUser(navController)
-                }
-            )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
         // Botón para validar condiciones de registro
         Button(
             onClick = {
@@ -111,7 +91,6 @@ fun InicioUserScreen(userViewModel: MainViewModel, navController: NavController)
                     userViewModel.getUserByEmail(email.value) { user ->
                         if (user != null) {
                             navigateToConsultaUser(navController, user)
-
                         } else {
                             navigateToRegistroUser(navController)
                         }
@@ -123,21 +102,18 @@ fun InicioUserScreen(userViewModel: MainViewModel, navController: NavController)
             Text("Inicio de Sesión")
         }
 
-
-
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Mostrar la lista de usuarios desde el ViewModel
-        users.value?.let { userList ->
-            LazyColumn {
-                items(userList) { user ->
-                    Text(
-                        text = "Nombre: ${user.name}, Correo: ${user.email}",
-                        style = androidx.compose.material3.MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.padding(8.dp)
-                    )
-                }
+        // Mostrar los detalles de la película aleatoria
+        movie.value?.results?.firstOrNull()?.let { movie ->
+            Column(modifier = Modifier.padding(8.dp)) {
+                Text(text = "Título: ${movie.title}", fontSize = 20.sp)
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(text = "Descripción: ${movie.overview ?: "Sin descripción disponible"}", fontSize = 16.sp)
+                Spacer(modifier = Modifier.height(8.dp))
+                // Si quieres mostrar más detalles, puedes añadir más Texts con propiedades como fecha de lanzamiento, etc.
             }
         }
     }
 }
+

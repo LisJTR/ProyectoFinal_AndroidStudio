@@ -8,22 +8,32 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.torre.proyectofinal.data.User
 import com.torre.proyectofinal.data.UserDao
-import kotlinx.coroutines.Dispatchers
+import com.torre.proyectofinal.data.api.MovieRepository
+import com.torre.proyectofinal.data.api.MovieResponse
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
-
-class MainViewModel(private val userDao: UserDao, private val context: Context) : ViewModel() {
+class MainViewModel(
+    private val userDao: UserDao,
+    private val context: Context,
+    private val movieRepository: MovieRepository,
+    private val apiKey: String
+) : ViewModel() {
 
     private val _userList = MutableLiveData<List<User>>(emptyList())
     val userList: LiveData<List<User>> get() = _userList
 
+    private val _movies = MutableLiveData<MovieResponse?>(null)
+    val movies: LiveData<MovieResponse?> get() = _movies
+
+    private var newDate: String? = null
+    private var oldDate: String? = null
+
     fun addUser(name: String, email: String) {
-        val registrationDate = getCurrentDate() // Obtener la fecha de registro
+        val registrationDate = getCurrentDate()
         val user = User(name = name, email = email, registrationDate = registrationDate)
         viewModelScope.launch {
-            userDao.insert(user) // Insertar el usuario en la base de datos
-            loadUsers() // Recargar la lista de usuarios
+            userDao.insert(user)
+            loadUsers()
         }
     }
 
@@ -33,23 +43,69 @@ class MainViewModel(private val userDao: UserDao, private val context: Context) 
         }
     }
 
-    // Método para obtener un usuario por correo
     fun getUserByEmail(email: String, onResult: (User?) -> Unit) {
         viewModelScope.launch {
             val user = userDao.getUserByEmail(email)
             onResult(user)
+            if (user != null) {
+                oldDate = user.registrationDate
+            }
         }
     }
 
-    // Incrementar el contador de accesos
     fun incrementAccessCount(email: String) {
         viewModelScope.launch {
-            userDao.incrementAccessCount(email) // Incrementa el contador en la base de datos
+            userDao.incrementAccessCount(email)
         }
     }
 
-    private fun getCurrentDate(): String {
+    fun getCurrentDate(): String {
         val currentDate = java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault()).format(java.util.Date())
         return currentDate
     }
+
+    fun getNewDate(): String? {
+        newDate = getCurrentDate()
+        return newDate
+    }
+
+    fun updateOldDate(userEmail: String) {
+        oldDate = newDate
+        newDate = null
+        updateUserRegistrationDate(userEmail, oldDate ?: "")
+    }
+
+
+
+    fun getOldDate(): String? {
+        return oldDate
+    }
+
+    // Obtener películas populares desde el repositorio
+    fun getRandomMovie(language: String) {
+        viewModelScope.launch {
+            try {
+                val response = movieRepository.getPopularMovies(apiKey, language)
+                val randomMovie = response.results?.random() // Obtener una película aleatoria
+                _movies.postValue(MovieResponse(results = listOf(randomMovie))) // Pasamos solo esa película
+            } catch (e: Exception) {
+                Log.e("MainViewModel", "Error obteniendo película aleatoria: ${e.message}")
+            }
+        }
+    }
+
+    // En MainViewModel
+    fun updateUserRegistrationDate(userEmail: String, newRegistrationDate: String) {
+        viewModelScope.launch {
+            val user = userDao.getUserByEmail(userEmail)
+            user?.let {
+                // Actualizamos la fecha en la base de datos
+                val updatedUser = it.copy(registrationDate = newRegistrationDate)
+                userDao.update(updatedUser)  // Método que deberías agregar en UserDao
+            }
+        }
+    }
+
+
 }
+

@@ -249,7 +249,7 @@ MainActivity, simplemente se realizó una referencia para llamar a esta pantalla
 ## 4 Commit: Cambios UI de la pantalla de Inicio y establecimiento de condiciones de navegación 
 ##         entre pantallas: Modificación UI Inicio | implantación de condiciones de navegación 
 
- * Funcionalidad más relevantes
+ * Funcionalidad más relevantes:
 
     ```Botón de validación entre pantallas
         Button(
@@ -285,7 +285,220 @@ MainActivity, simplemente se realizó una referencia para llamar a esta pantalla
         suspend fun getUserByEmail(email: String): User?
     ```
 
-## 5 Modificación UI Registro | Implementación de notificación
+## Commit 5  y 6 : Modificación UI Registro | Implementación de notificación
+##                 Implementación de notificación datos UI, datos de fecha y contador
 
-## 6 Implementación de notificación datos UI y datos de fecha y contador
+* Funcionalidad más relevantes:
 
+  - Pantalla de RegistroScreen 
+  
+      ```
+    // Mostrar el Dialog en el centro de la pantalla después de registrar
+          if (showDialog) {
+              // LaunchedEffect para hacer que el Dialog desaparezca después de un retraso
+              LaunchedEffect(Unit) {
+                  delay(2000)  // Esperar 2 segundos (puedes ajustar este valor)
+                  showDialog = false  // Cerrar el Dialog
+                  navController.popBackStack()  // Regresar a la pantalla de inicio
+              }
+
+              AlertDialog(
+                  onDismissRequest = { showDialog = false },
+                  title = { Text("Registro exitoso") },
+                  text = { Text("El usuario ha sido registrado correctamente.") },
+                  confirmButton = {}  // Sin botón, solo muestra el mensaje y lo quita después de 2 segundos
+              )
+          }
+      ```
+    El LaunchedEffect, que usa para iniciar una tarea en segundo, lo que me permite que al añadir los datos
+    en la BBDD se combiarta en TRUE y se muestre la notificación que esta en segundo plano unos segundo
+    y despúes se oculte.
+  
+  - Pantalla de ConsultaScreen:
+  
+    - Se establecen dos variables nuevas en la clase User, para poder guardar los datos en la BBDD:
+    
+    ```
+      // Fecha de registro en formato String (puedes usar Long si prefieres timestamp)
+      val registrationDate: String,
+
+    // Contador de accesos
+    val accessCount: Int = 0
+    ```
+    y en la clase consulta establecemos la llamada a las variables y el contador que sumara 1 cada vez
+    que el jugador accede a Consulta 
+
+     ``` 
+    // Obtener los datos del usuario por su correo electrónico
+    LaunchedEffect(userEmail) {
+    mainViewModel.getUserByEmail(userEmail) { retrievedUser ->
+    if (retrievedUser != null) {
+    user = retrievedUser
+    
+    // Incrementar el contador de accesos al cargar la pantalla
+    mainViewModel.incrementAccessCount(userEmail)
+
+                // Actualizamos la fecha antigua (lo que estaba almacenado)
+                currentNewDate = mainViewModel.getNewDate()  // Establecer la fecha nueva
+            } else {
+                Log.e("ConsultaScreen", "Usuario no encontrado con email: $userEmail")
+            }
+        }
+    }
+     ``` 
+    
+## Commit 7: Implementar variables fechas (nueva/antigua) | implementación de Hilos(Runnable) |
+##           Implementacion de Retrofit
+
+* Funcionalidad más relevantes:
+
+  - Pantalla de ConsultaScreen:
+  
+    - Variables fecha nueva/antigua
+
+        - En este cado utilizamos el Usas LaunchedEffect para cargar los datos del usuario al inciar la
+          pantalla de Consulta, bajo la comparación del correo del usuario
+        - Implementación de las variables de las fechas: se establecen dos variables para las fechas (nueva/antigua)
+          se establece que en cada ejecución la variable de la fecha antigua se actualize con los datos de la
+          variable de fecha nueva y se guarde y la fecha nueva se limpie hasta mostrar en tiempo real la fecha actual.
+
+          ``` 
+          Button(
+          onClick = {
+          // Al cerrar, actualizar la fecha antigua
+          mainViewModel.updateOldDate()  // Actualiza la fecha antigua
+          showNotification = false  // Cerrar la notificación
+          },
+          modifier = Modifier.fillMaxWidth() // Ocupa el 100% del ancho
+          ) {
+          Text("Cerrar")
+          }
+        ```
+      - implementación de Hilos(Runnable):
+    
+        * Se utiliza Handler y Runnable para ejecutar el trozo de código que establece el hilo, 
+          el valor del cual se maneja con showApiReminder, cuyos valores serán: true/false
+          Looper.getMainLooper(): se utiliza para asegurar que el Runnable se ejecute en el hilo principan
+    
+        * Inicio hilo:
+          LaunchedEffect(Unit): esto asegura que el código dentro del bloque se ejecute una vez que la 
+          pantalla Consulta esta activada.
+
+           ``` 
+          LaunchedEffect(Unit) {
+          handler.post(apiReminderRunnable)
+          }
+           ``` 
+          handler.post(apiReminderRunnable) para iniciar la ejecución del Runnable que alternará
+          la visibilidad de la notificación.
+    
+        * Control de la visibilidad
+
+          El  showApiReminder es el que controla si la notificación se muestra o no. Mientras 
+          showApiReminder sea true, la notificación será visible, y cuando se ponga en false, desaparecerá
+        
+          ``` 
+           if (showApiReminder) {
+            Box(
+               modifier = Modifier
+                 .fillMaxSize()
+                 .wrapContentSize(Alignment.TopCenter)
+                 .background(Color.Yellow.copy(alpha = 0.8f))
+                 .padding(16.dp)
+             ) {
+                Text("🔔 Recuerda que puedes consultar la API", fontSize = 16.sp, color = Color.Black)
+            }
+             }
+            ```   
+        * Botón para detener el hilo
+    
+         ``` 
+          Button(
+             onClick = {
+               showApiReminder = false  // Ocultar la notificación
+               handler.removeCallbacks(apiReminderRunnable)  // Detener el hilo
+            },
+            modifier = Modifier.fillMaxWidth()
+           ) {
+            Text("Consulta de Usuario", fontSize = 24.sp)
+           }
+
+          ``` 
+      
+        - implementación de Retrofit
+        
+            1. Añadir las dependecias para poder utilizar Retrofil al archivo gradle
+            
+            ``` 
+            // Retrofit
+            implementation("com.squareup.retrofit2:retrofit:2.9.0")
+            implementation("com.squareup.retrofit2:converter-gson:2.9.0") // Convierte JSON en objetos de Kotlin
+
+            // OkHttp (para ver logs de las peticiones, útil para depuración)
+            implementation("com.squareup.okhttp3:logging-interceptor:4.9.3")
+            ``` 
+            Además de : 
+
+            ```
+            packaging {
+            resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "/META-INF/INDEX.LIST"  // indice de lista de datos 
+            excludes += "/META-INF/DEPENDENCIES"  // Agregado para excluir el archivo DEPENDENCIES
+            }
+            }
+            ```
+             ! Evitarán que ese archivo cause conflicto durante la compilación ¡
+    
+            También se debe añadir al Manifest :
+
+            ```
+            <!-- Agregar el permiso de Internet -->
+            <uses-permission android:name="android.permission.INTERNET"/>
+           ```
+      
+             ! Esto es necesario si la aplicación necesita navegación o interacción con internet para obtener los 
+              datos de la API ¡
+
+           2. Establecer la estructura donde se manerara el flujo de datos de Retrofit
+
+          ![Estructura del proyecto con Retrofit](Imagenes/estructura_retrofit.png)
+    
+           3. Establecer comportamiento de cada clase Retrofit, el flujo es:
+      
+                * MovieApiService: Este servicio interactúa con la API para obtener los datos especificados
+                * MovieRepository: se encargará de manejar las llamadas a la API, y luego pasará los datos al ViewModel
+                * MovieResponse: Esta clase es una representación de la respuesta de la AP
+                  * MovieResponse: Contiene una lista de datos (results), que es la respuesta principal que se recibe de la API.
+                  * Movie: Representa la información de una película individual, representado por campos
+                * RetrofitInstance: es una clase singleton, configura y proporciona la instancia de Retrofit para interactuar con la API 
+                  * BASE_URL: La URL base de la API (en este caso, la de The Movie Database)
+                  * OkHttpClient: Se utiliza para realizar las solicitudes HTTP. Aquí se crea un cliente básico para gestionar esas solicitudes
+                  * retrofit: Instancia de Retrofit configurada con la URL base, el cliente de OkHttp y un convertidor Gson para convertir las respuestas JSON en objetos Kotlin
+                  * movieApiService: La interfaz que define las funciones de la API (como obtener películas). Se crea mediante Retrofit usando la instancia retrofit
+
+           4. Establecemos el flujo de información recogida para su visualización 
+      
+              * En el MainViewModel establecemos el llamado a los datos del repositorio
+      
+                  ```// Obtener películas populares desde el repositorio
+                       fun getRandomMovie(language: String) {
+                        viewModelScope.launch {
+                     try {
+                     val response = movieRepository.getPopularMovies(apiKey, language)
+                     val randomMovie = response.results?.random() // Obtener una película aleatoria
+                     _movies.postValue(MovieResponse(results = listOf(randomMovie))) // Pasamos solo esa película
+                     } catch (e: Exception) {
+                     Log.e("MainViewModel", "Error obteniendo película aleatoria: ${e.message}")
+                     }
+                     }
+                     }
+                  ```
+                    * Llama al repositorio (movieRepository.getPopularMovies) para obtener las películas populares desde la API.
+                    * Obtiene una película aleatoria de la lista de resultados.
+                    * Actualiza el LiveData _movies con esa única película aleatoria.
+      
+              * Opcional si la extructura es modular, en el MainViewModelFactory , también se establece
+                el parámetro de retrofit (movieRepository), para que los pase al MainViewModel cuando es creado.
+                 !Retrofit influye indirectamente a través del movieRepository, que es responsable de hacer 
+                  las solicitudes de red para obtener las películas desde la API usando Retrofit¡

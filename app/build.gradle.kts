@@ -30,6 +30,7 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -37,15 +38,20 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+
     buildFeatures {
         compose = true
     }
+
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
     }
+
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "/META-INF/INDEX.LIST"
+            excludes += "/META-INF/DEPENDENCIES"  // Agregado para excluir el archivo DEPENDENCIES
         }
     }
 }
@@ -67,6 +73,7 @@ dependencies {
     implementation(libs.androidx.runtime.livedata)
     implementation(libs.androidx.storage)
     implementation(libs.androidx.media3.common.ktx)
+    implementation(libs.firebase.appdistribution.gradle)
     //implementation(libs.androidx.ui.test.android) // Room Runtime
     kapt(libs.androidx.room.compiler) // Room Compiler
     implementation("androidx.room:room-ktx:2.5.2")
@@ -92,6 +99,14 @@ dependencies {
     //androidTestImplementation(libs.androidx.ui.test.junit4)
     //debugImplementation(libs.androidx.ui.tooling)
     //debugImplementation(libs.androidx.ui.test.manifest)
+
+    // Retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0") // Convierte JSON en objetos de Kotlin
+
+    // OkHttp (para ver logs de las peticiones, útil para depuración)
+    implementation("com.squareup.okhttp3:logging-interceptor:4.9.3")
+
 }
 
 kapt {
