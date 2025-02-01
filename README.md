@@ -1,9 +1,125 @@
 # DOCUMENTACIÓN Y SEGUIMIENTO - PROYECTO FINAL
 
-## Descripción 
+## DESCRIPCIÓN DE LAS FUNCIONALIDADES DE LA APLICACIÓN
 
-## DESCRIPCIÓN DE LAS FUNCIONALIDADES DE LA APLICACIÓN 
+La aplicación permite a los usuarios registrarse con su nombre y correo, lo que les da acceso a 
+consultar información sobre películas y visualizar imágenes de alta calidad.
 
+Para su desarrollo se ha integrado: 
+
+1. Jetpack Compose: Proporciona una interfaz moderna y dinámica, optimizando el manejo de los recursos 
+   y mejorando la experiencia de usuario.
+2. Room: Permite la persistencia de datos, asegurando la validación e interacción con la base de datos
+   de manera eficiente.
+3. NavController: Facilita la navegación fluida y estructurada entre las diferentes pantallas de la aplicación.
+4. Retrofit: Gestiona la comunicación con las APIs (Movie y Pexels) para obtener información en tiempo real.
+5. Hilos (Runnable): Garantizan la ejecución de tareas en segundo plano, como la carga de imágenes y el 
+   control de notificaciones, sin afectar el rendimiento de la interfaz e interacción con las diversas pantallas.
+6. Notificaciones: Informa a los usuarios sobre eventos importantes dentro de la aplicación.
+7. Coil (biblioteca de carga de imágenes en Jetpack Compose): Optimiza la carga y visualización de imágenes de 
+   las APIs, asegurando eficiencia y un mejor rendimiento.
+
+## LOS PASOS NECESARIOS PARA EJECUTAR EL PROYECTO
+
+![Pasos para ejecutar la aplicación](Imagenes/primerospasos.png)
+![](Imagenes/segundospasos.png)
+
+## ANÁLISIS TOMADAS DURANTE EL DESARROLLO
+
+La aplicación comenzó con el estudio y ejecución de ejemplos sencillos para implementar las tecnologías ,
+estableciendo una estructura modular y organizada. Esto permitió ir integrando nuevas funcionalidades sin 
+afectar la estabilidad general de la aplicación. A lo largo del proceso, se tomaron decisiones orientadas
+a utilizar las herramientas de manera eficiente y sencilla, con el objetivo de ofrecer una experiencia de 
+usuario fluida, fácil y dinámica. Una vez implementadas las principales herramientas, se trabajó en mejorar 
+la interfaz de usuario de las distintas pantallas.
+
+
+## RESUMEN DE BUSQUEDA PARA LA IMPLEMENTACIÓN DE LAS FUNCIONALIDADES
+
+1. Jetpack Compose:
+
+    Se decide investigar y analizar los recursos que implementa J.Compose para estructurar
+    y crear la aplicación de una manera eficiente.
+    Los recursos utilizados para ello son: tutoriales, web oficial de Android Studios, webs explicativas, etc
+    para comprobar y ver el funcionamiento de por ejemplo modificadores, compomentes UI (Text, Column...),
+    animaciones, transiciones, manejadores de datos (remenber y mutableStateOf), etc.
+
+        Enlaces de algunas de las busquedas: 
+    
+            * Documentación oficial de Jetpack Compose
+            * Tutorial de Jetpack Compose en Android Developers
+            * Guía de referencia sobre componentes UI en Jetpack Compose        
+
+2. Room: 
+
+    Se buscan ejemplos e información de la mejor manera definir las entidades (@Entity), DAO (Data Access Object),
+    y el contenido de estas, además de la utilización de las operación propias de una BBDD.
+    También se analiza y se implementa un ejemplo (1 y 2 commit) de como utilizar y integrar el Room con 
+    LiveData y Coroutines para optimazar la gestión de datos asíncronos.
+
+        Enlaces de algunas de las busquedas:
+
+           * Guía paso a paso para usar Room
+           * Room Database en Android - Tutorial completo
+
+3. NavController:
+    
+    Se investiga mediante ejemplos (uso de NavController y NavHost) el flujo de navegación así cómo la manera 
+    más optima para implementar la navegación entre pantallas con NavController e integrarla con J.Compose y 
+    Room (se analiza la estructura más optima para integrarlo).
+
+       Enlaces de algunas de las busquedas:
+
+           * Guía paso a paso para usar Room
+           * https://www.youtube.com/watch?v=9tv7O-Mxqfs
+
+4. Retrofit:
+    
+    Se visualizan tutoriales y videos explicativos sobre el uso de Retrofil para hacer solicitudes HTTP
+    y la obtención de las respuestas de las APIs (configurar el convertidor JSON, convertidor de datos de
+    respuesta en objetos que se pueden utilizar) y como poder manejar las respuesta de forma asíncrona 
+    usando Coroutines.
+
+       Enlaces de algunas de las busquedas:
+
+           * https://www.youtube.com/watch?v=KIeu5gAQ1mQuía paso a paso para usar Room
+           * https://www.youtube.com/watch?v=95qUUqQZJOM
+           * Documentación oficial de Retrofit para Android
+
+5. Hilos (Runnable):
+
+    Se busca ejemplos sobre la utilización de Runnable y Coroutines para ejecutar tareas en segundo plano
+    sin bloquear la interfaz principal, además de la implementación de hilos para manejar tareas (notifiaciones
+    e imágenes y solicitudes en red) y la manera de utilizar LaunchedEffect en Compose para las acciones 
+    asincrónas.
+
+      Enlaces de algunas de las busquedas:
+
+           * Cómo usar Hilos en Android - Android Developers
+           * https://www.youtube.com/watch?v=h6lwzIyR0tI
+
+6. Notificaciones:
+    
+    Se busca como se puede implementar notificaciones locales en Android usando NotificationManager y 
+    la personalización de estas.
+
+       Enlaces de algunas de las busquedas:
+
+           * Cómo crear notificaciones en Android - Android Developers
+           * Cómo hacer notificaciones en Android Studio
+
+7. Coli:
+
+    Se busca en la documentación y tutoriales, sobre la manera de cargar imágenes en J.Compose. 
+
+       Enlaces de algunas de las busquedas:
+
+           * Coli y Jetpack Compose: Cómo cargar imágenes
+           * https://www.youtube.com/watch?v=jBfBB5iFLeQ
+
+## ESTRUCTURA DEL PROYECTO
+
+![Estructura definitiva de la aplicación](Imagenes/estructuradefinitiva.png)
 
 # SEGUIMIENTO DE LOS COMMIT
 
@@ -511,18 +627,25 @@ MainActivity, simplemente se realizó una referencia para llamar a esta pantalla
     - Implementación de condiciones de variables Contador:
 
        1. Usuario nuevo se registra e inicia sesión, pero nunca entra a ConsultaScreen
-            ✅ Contador antiguo = 0
-            ✅ Contador nuevo = 0
-       2.Usuario nuevo entra a ConsultaScreen por primera vez en esa sesión
-            ✅ Contador antiguo = 0
-            ✅ Contador nuevo = 1
+      
+            * Contador antiguo = 0
+            * Contador nuevo = 0
+      
+       2. Usuario nuevo entra a ConsultaScreen por primera vez en esa sesión
+      
+            * Contador antiguo = 0
+            * Contador nuevo = 1
+      
        3. Usuario cierra sesión o reinicia la aplicación y vuelve a iniciar sesión, luego entra a ConsultaScreen
-            ✅ Contador antiguo = 1
-            ✅ Contador nuevo = 2
+      
+            * Contador antiguo = 1
+            * Contador nuevo = 2
+      
        4. Usuario se registra, pero cierra la aplicación antes de iniciar sesión y entrar a ConsultaScreen
           Al volver a iniciar sesión y entrar a ConsultaScreen:
-            ✅ Contador antiguo = 0
-            ✅ Contador nuevo = 1
+      
+            * Contador antiguo = 0
+            * Contador nuevo = 1
 
             ```//Condición de botón de pantalla Inicio para pasar a pantalla Consulta
                Button(

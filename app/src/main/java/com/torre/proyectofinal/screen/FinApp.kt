@@ -34,7 +34,7 @@ import kotlin.system.exitProcess
 @Composable
 fun FinApp(navController: NavController, mainViewModel: MainViewModel) {
     // Observar las imágenes desde el ViewModel usando collectAsState()
-    val pexelsImages by mainViewModel.pexelsImages.collectAsState()
+    val pexelsImages by mainViewModel.pexels.collectAsState()
 
     // Llamar a la función que obtiene las imágenes cuando se carga la pantalla
     LaunchedEffect(Unit) {

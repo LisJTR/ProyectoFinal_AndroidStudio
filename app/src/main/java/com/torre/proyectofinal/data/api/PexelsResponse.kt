@@ -18,3 +18,4 @@ data class ImageSrc(
     val small: String
 )
 
+

@@ -6,18 +6,20 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.room.util.query
 import com.torre.proyectofinal.data.User
 import com.torre.proyectofinal.data.UserDao
 import com.torre.proyectofinal.data.api.MovieRepository
 import com.torre.proyectofinal.data.api.MovieResponse
 import com.torre.proyectofinal.data.api.PexelsRepository
 import com.torre.proyectofinal.data.api.PexelsResponse
-import com.torre.proyectofinal.data.api.RetrofitInstance
 import com.torre.proyectofinal.data.api.RetrofitInstance.pexelsApiService
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+
 
 class MainViewModel(
     private val userDao: UserDao,
@@ -27,6 +29,7 @@ class MainViewModel(
     private val apiKey: String,
     private val pexelsApiKey: String  // Agregar la clave API de Pexels como parámetro
 ) : ViewModel() {
+
 
     private val _userList = MutableLiveData<List<User>>(emptyList())
     val userList: LiveData<List<User>> get() = _userList
@@ -38,11 +41,6 @@ class MainViewModel(
     private val _userAccessCount = MutableLiveData<Int>()
     val userAccessCount: LiveData<Int> get() = _userAccessCount
 
-    // LiveData para las imágenes de Pexels
-    private val _pexelsImages = MutableStateFlow<PexelsResponse?>(null)
-    val pexelsImages: StateFlow<PexelsResponse?> = _pexelsImages.asStateFlow()
-
-
 
     //variables para manejar las fechas
     private var newDate: String? = null
@@ -50,8 +48,8 @@ class MainViewModel(
 
     // Variables para manejar los contadores
     private var currentAccessCount: Int = 0  // Este será el contador de la sesión actual (nuevo)
-    private var previousAccessCount: Int = 0  // Este es el contador antiguo, debe mantenerse entre sesiones
-
+    private var previousAccessCount: Int =
+        0  // Este es el contador antiguo, debe mantenerse entre sesiones
 
 
     fun addUser(name: String, email: String) {
@@ -102,9 +100,9 @@ class MainViewModel(
     }
 
 
-
     fun getCurrentDate(): String {
-        val currentDate = java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault()).format(java.util.Date())
+        val currentDate = java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault())
+            .format(java.util.Date())
         return currentDate
     }
 
@@ -120,11 +118,9 @@ class MainViewModel(
     }
 
 
-
     fun getOldDate(): String? {
         return oldDate
     }
-
 
 
     // Actualizar la fecha en la base de datos
@@ -152,28 +148,44 @@ class MainViewModel(
         }
     }
 
+    // LiveData para las imágenes/videos de Pexels
+    private val _pexels = MutableStateFlow<PexelsResponse?>(null)
+    val pexels: StateFlow<PexelsResponse?> = _pexels.asStateFlow()
+
     // Nuevo método para obtener imágenes desde la API de Pexels
     fun getImagesFromPexels(query: String) {
         viewModelScope.launch {
             try {
                 // Obteniendo las imágenes desde la API
                 val response = pexelsApiService.getImages(page = 1, perPage = 10, query = query)
-                _pexelsImages.value = response // Asignamos la respuesta al estado
+                _pexels.value = response // Asignamos la respuesta al estado
             } catch (e: Exception) {
                 Log.e("MainViewModel", "Error obteniendo imágenes de Pexels: ${e.message}")
             }
         }
     }
 
-    // Función para obtener imágenes aleatorias desde la API de Pexels
-    fun getRandomImages(query: String) {
+    // Aquí reemplazamos la lógica de los videos de Pexels
+    // Simplemente asignamos un ID de YouTube para el video que quieres mostrar
+    // Agregar una lista de URLs de YouTube
+    private val defaultVideoUrls = listOf(
+        "https://www.youtube.com/watch?v=eMbv-FwG16E",
+        "https://www.youtube.com/watch?v=_FxJ1ylM4Ec",
+        "https://www.youtube.com/watch?v=an7krXQW4aU"
+
+    )
+
+
+    // MutableLiveData para controlar el video en la UI (puedes cambiar la URL del video si lo necesitas)
+    private val _videoUrls = MutableLiveData<List<String>>()
+    val videoUrls: LiveData<List<String>> get() = _videoUrls
+
+    fun startVideoLoop() {
         viewModelScope.launch {
-            try {
-                // Obteniendo imágenes aleatorias desde la API de Pexels
-                val response = pexelsApiService.getImages(page = 1, perPage = 10,  query = query )  // Sin query, para obtener imágenes aleatorias
-                _pexelsImages.value = response  // Asignamos la respuesta al estado
-            } catch (e: Exception) {
-                Log.e("MainViewModel", "Error obteniendo imágenes de Pexels: ${e.message}")
+            while (true) {
+                // Publicamos la lista de URLs de video
+                _videoUrls.postValue(defaultVideoUrls)
+                delay(5000)  // Esperar 5 segundos para cambiar
             }
         }
     }

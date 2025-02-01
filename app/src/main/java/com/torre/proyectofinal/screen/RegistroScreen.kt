@@ -1,12 +1,12 @@
 package com.torre.proyectofinal.screen
 
 import android.annotation.SuppressLint
+import android.util.Log
 import android.widget.Toast
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -14,17 +14,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
-import coil.compose.AsyncImage
-import coil.compose.rememberAsyncImagePainter
-import coil.compose.rememberImagePainter
 import com.torre.proyectofinal.R
-import com.torre.proyectofinal.data.api.PexelsImage
+import com.google.accompanist.pager.*
 import com.torre.proyectofinal.viewmodel.MainViewModel
 import kotlinx.coroutines.delay
+import androidx.compose.foundation.layout.Box
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.remember
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -41,18 +49,15 @@ fun RegistroScreen(navController: NavController, userViewModel: MainViewModel,  
     // Cargar la imagen (asegúrate de que la imagen esté en la carpeta drawable)
     val image: Painter = painterResource(id = com.torre.proyectofinal.R.drawable.usuario_)
 
+    // Obtener la lista de URLs de video desde el ViewModel
+    val videoUrls by mainViewModel.videoUrls.observeAsState(emptyList())
 
-    // Cargar imágenes de la API de Pexels
-    val pexelsImages by mainViewModel.pexelsImages.collectAsState()
-
-    // Llamada a la API para obtener imágenes aleatorias
+    // Llamar a startVideoLoop() en el ViewModel
     LaunchedEffect(Unit) {
-        mainViewModel.getRandomImages("nature")  // Aquí llamamos a la función para obtener las imágenes aleatorias
+        mainViewModel.startVideoLoop()
     }
-   // Depuración: Verificar si las imágenes están llegando correctamente
-   // LaunchedEffect(pexelsImages) {
-   //     println("Imágenes obtenidas: ${pexelsImages?.photos}")
-   // }
+
+
 
     // Diseño de la pantalla
     Box(
@@ -126,13 +131,16 @@ fun RegistroScreen(navController: NavController, userViewModel: MainViewModel,  
                     unfocusedIndicatorColor = Color.White  // Color del indicador cuando no está enfocado
                 )
             )
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(70.dp))
 
-            // Llamamos al InfiniteImageCarousel para crear el hilo de imágenes
-            if (pexelsImages != null && pexelsImages?.photos?.isNotEmpty() == true) {
-                // Aquí pasamos las imágenes obtenidas de la API de Pexels al "hilo" de imágenes
-                InfiniteImageCarousel(photo = pexelsImages?.photos ?: emptyList())
+            // Mostramos los videos
+            // Pasamos la lista directamente a InfiniteVideosCarousel
+            if (videoUrls.isNotEmpty()) {
+                Log.d("RegistroScreen", "Mostrando videos: $videoUrls")
+                InfiniteVideosCarousel(videos = videoUrls)  // Aquí pasamos la lista de URLs con todos los videos
             }
+
+
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -187,38 +195,74 @@ fun RegistroScreen(navController: NavController, userViewModel: MainViewModel,  
 
     }
 }
-    @Composable
-    fun InfiniteImageCarousel(photo: List<PexelsImage>) {
-        val infiniteImages = remember { mutableStateListOf<PexelsImage>().apply { addAll(photo) } }
 
+// Carrusel de videos (se muestra uno por uno)
+@OptIn(ExperimentalPagerApi::class)
+@Composable
+fun InfiniteVideosCarousel(videos: List<String>) {
+    val pagerState = rememberPagerState()
 
-        LaunchedEffect(Unit) {
-            while (true) {
-                delay(3000) // Esperar 3 segundos
-                if (infiniteImages.isNotEmpty()) {
-                    infiniteImages.add(infiniteImages.first()) // Agregar la primera imagen al final
-                    infiniteImages.removeAt(0)  // Eliminar la primera imagen
-                }
-            }
-        }
-
-        // Mostrar las imágenes de Pexels
-        LazyRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(200.dp)
-                .padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(infiniteImages) { image ->  // ✅ Usamos `infiniteImages`
-                AsyncImage(
-                    model = image.src.medium,  // ✅ Correcto acceso a la imagen
-                    contentDescription = "Imagen de Pexels",
-                    modifier = Modifier.fillMaxHeight(),
-                    contentScale = ContentScale.Crop
+    // Lógica para cambiar automáticamente de video cada 5 segundos (ajustado para más lento)
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(10000)  // Espera 5 segundos entre cambios de video
+            val currentPage = pagerState.currentPage
+            val nextPage = (currentPage + 1) % videos.size  // Cambiar al siguiente video
+            pagerState.animateScrollToPage(
+                nextPage,
+                animationSpec = tween(
+                    durationMillis = 990000,
+                    easing = LinearEasing
                 )
-            }
+            )  // Deslizar al siguiente video con animación suave
         }
+    }
 
+    // Usamos el HorizontalPager para el carrusel de videos
+    HorizontalPager(
+        count = videos.size,  // La cantidad de videos disponibles
+        state = pagerState,
+        modifier = Modifier.fillMaxWidth()
+    ) { page ->
+        VideoPlayer(videoUrl = videos[page])  // Muestra el video correspondiente en la página
+    }
 }
 
+@Composable
+fun VideoPlayer(videoUrl: String) {
+    Log.d("VideoPlayer", "Playing video: $videoUrl")
+
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    // Creamos un YouTube Player
+    val playerView = remember { YouTubePlayerView(context) }
+
+    DisposableEffect(playerView) {
+        lifecycleOwner.lifecycle.addObserver(playerView)
+        playerView.addYouTubePlayerListener(object : AbstractYouTubePlayerListener() {
+            override fun onReady(youTubePlayer: YouTubePlayer) {
+                Log.d("VideoPlayer", "YouTubePlayer is ready")
+                // Extraemos el videoId de la URL
+                val videoId = videoUrl.substringAfter("v=").substringBefore("&")
+                Log.d("VideoPlayer", "Video ID: $videoId")
+                // Cargamos el video con el ID extraído
+                youTubePlayer.loadVideo(videoId, 0f)
+                Log.d("VideoPlayer", "Video loaded")
+            }
+        })
+
+        onDispose {
+            playerView.release()
+        }
+    }
+
+    // Usamos AndroidView para integrarlo en Jetpack Compose
+    AndroidView(
+        factory = { playerView },
+        modifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(16 / 9f) // Mantiene la proporción 16:9
+            .height(120.dp)
+    )
+}

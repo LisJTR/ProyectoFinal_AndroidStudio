@@ -41,8 +41,8 @@ class MainActivity : ComponentActivity() {
             val userDao = AppDatabase.getDatabase(applicationContext).userDao()
 
             // Definir las claves API
-            val movieApiKey = "7bbe53fb4f5d755bcad2e1a3f6ed72e7"  // Reemplaza con tu API key para películas
-            val pexelsApiKey = "eCDbyY5ibg7Ol3pINMuHkJHOkEwhcjvI7wwK1G9WVkdqoV77WfZ5BsxP"  // Reemplaza con tu API key para Pexels
+            val movieApiKey = "7bbe53fb4f5d755bcad2e1a3f6ed72e7"  //  API key para películas
+            val pexelsApiKey = "eCDbyY5ibg7Ol3pINMuHkJHOkEwhcjvI7wwK1G9WVkdqoV77WfZ5BsxP"  //  API key para Pexels
 
             // Crear el factory para el ViewModel
             val factory = MainViewModelFactory(userDao, applicationContext, movieRepository,

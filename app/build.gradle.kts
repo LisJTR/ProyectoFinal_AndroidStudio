@@ -97,8 +97,8 @@ dependencies {
 
     //Dependencias habilitadas por imposibilidad de versión
     //androidTestImplementation(libs.androidx.ui.test.junit4)
-    //debugImplementation(libs.androidx.ui.tooling)
-    //debugImplementation(libs.androidx.ui.test.manifest)
+    debugImplementation(libs.androidx.ui.tooling)
+    debugImplementation(libs.androidx.ui.test.manifest)
 
     // Retrofit
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
@@ -120,6 +120,15 @@ dependencies {
     // otras dependencias
 
     implementation("io.coil-kt:coil-compose:2.0.0")
+
+    implementation ("com.google.android.exoplayer:exoplayer-core:2.18.2")  // ExoPlayer Core
+    implementation ("com.google.android.exoplayer:exoplayer-ui:2.18.2")  // ExoPlayer UI
+    // Añade esta línea para ExoPlayer
+
+
+    implementation("com.pierfrancescosoffritti.androidyoutubeplayer:core:12.1.0")
+    implementation ("com.google.accompanist:accompanist-pager:0.24.13-rc")
+
 
 }
 
