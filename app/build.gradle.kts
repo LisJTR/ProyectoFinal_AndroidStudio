@@ -103,9 +103,23 @@ dependencies {
     // Retrofit
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0") // Convierte JSON en objetos de Kotlin
+   
+
 
     // OkHttp (para ver logs de las peticiones, útil para depuración)
     implementation("com.squareup.okhttp3:logging-interceptor:4.9.3")
+
+    // Coil (para cargar imágenes desde URL)
+    implementation("io.coil-kt:coil-compose:2.2.0")
+
+    // Lottie (para animaciones de carga)
+    implementation("com.airbnb.android:lottie-compose:6.0.0")
+
+    // Dependencia para Lifecycle
+    implementation ("androidx.lifecycle:lifecycle-runtime-compose:2.6.1") // O la última versión disponible
+    // otras dependencias
+
+    implementation("io.coil-kt:coil-compose:2.0.0")
 
 }
 

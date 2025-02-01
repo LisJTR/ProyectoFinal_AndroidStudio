@@ -22,7 +22,7 @@ data class User(
     val registrationDate: String,
 
     // Contador de accesos
-    val accessCount: Int = 0
+    var accessCount: Int = 0,
 
-
+    var previousAccessCount: Int = 0  // Contador antiguo
 )

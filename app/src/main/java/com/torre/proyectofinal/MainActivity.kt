@@ -12,6 +12,9 @@ import androidx.navigation.navArgument
 import com.torre.proyectofinal.data.AppDatabase
 import com.torre.proyectofinal.data.api.MovieApiService
 import com.torre.proyectofinal.data.api.MovieRepository
+import com.torre.proyectofinal.data.api.PexelsApiService
+import com.torre.proyectofinal.data.api.PexelsRepository
+import com.torre.proyectofinal.data.api.RetrofitInstance
 import com.torre.proyectofinal.viewmodel.MainViewModel
 import com.torre.proyectofinal.viewmodel.MainViewModelFactory
 import com.torre.proyectofinal.screen.ConsultaScreen
@@ -30,14 +33,20 @@ class MainActivity : ComponentActivity() {
             val movieApiService = MovieApiService.create()  // Usar el método 'create' del companion object
             val movieRepository = MovieRepository(movieApiService)
 
+            // Usar la instancia global de RetrofitInstance para PexelsApiService
+            val pexelsRepository = PexelsRepository(RetrofitInstance.pexelsApiService)
+            // Usar la instancia global de RetrofitInstance
+
             // Obtener la instancia de 'userDao' de la base de datos
             val userDao = AppDatabase.getDatabase(applicationContext).userDao()
 
-            // Definir la clave API
-            val apiKey = "7bbe53fb4f5d755bcad2e1a3f6ed72e7"  // Reemplaza con tu API key
+            // Definir las claves API
+            val movieApiKey = "7bbe53fb4f5d755bcad2e1a3f6ed72e7"  // Reemplaza con tu API key para películas
+            val pexelsApiKey = "eCDbyY5ibg7Ol3pINMuHkJHOkEwhcjvI7wwK1G9WVkdqoV77WfZ5BsxP"  // Reemplaza con tu API key para Pexels
 
             // Crear el factory para el ViewModel
-            val factory = MainViewModelFactory(userDao, applicationContext, movieRepository, apiKey)
+            val factory = MainViewModelFactory(userDao, applicationContext, movieRepository,
+                pexelsRepository, movieApiKey, pexelsApiKey)
 
             // Crear una instancia del ViewModel utilizando el ViewModelFactory
             val userViewModel = ViewModelProvider(this, factory).get(MainViewModel::class.java)
@@ -57,7 +66,7 @@ class MainActivity : ComponentActivity() {
                 }
                 composable("registroScreen") {
                     // Pantalla de éxito
-                    RegistroScreen(navController = navController, userViewModel = userViewModel)
+                    RegistroScreen(navController = navController, userViewModel = userViewModel, mainViewModel = userViewModel)
                 }
                 composable(
                     "consultaUserScreen/{userEmail}",
@@ -73,9 +82,10 @@ class MainActivity : ComponentActivity() {
                 }
                 // Aquí registramos la pantalla FinApp
                 composable("finApp") {
-                    FinApp(navController = navController)  // Asegúrate de pasar el NavController
+                    FinApp(navController = navController, mainViewModel = userViewModel )  // Asegúrate de pasar el NavController
                 }
             }
         }
     }
 }
+

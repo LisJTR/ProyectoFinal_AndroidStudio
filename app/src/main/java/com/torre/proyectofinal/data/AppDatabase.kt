@@ -15,6 +15,8 @@ abstract class AppDatabase : RoomDatabase() {
         private var INSTANCE: AppDatabase? = null
 
         fun getDatabase(context: Context): AppDatabase {
+            // Elimina la base de datos manualmente para evitar problemas con versiones antiguas
+           // context.deleteDatabase("user_database")
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,

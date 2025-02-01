@@ -502,3 +502,171 @@ MainActivity, simplemente se realizó una referencia para llamar a esta pantalla
                 el parámetro de retrofit (movieRepository), para que los pase al MainViewModel cuando es creado.
                  !Retrofit influye indirectamente a través del movieRepository, que es responsable de hacer 
                   las solicitudes de red para obtener las películas desde la API usando Retrofit¡
+
+## Commit 8: Establecer comportamiento variables contadores | implementación de biblioteca Coil |
+##           Mejoras de las UIs | APIs con imagenes (J.Compose e Hilos)
+
+  * Funcionalidad más relevantes:
+
+    - Implementación de condiciones de variables Contador:
+
+       1. Usuario nuevo se registra e inicia sesión, pero nunca entra a ConsultaScreen
+            ✅ Contador antiguo = 0
+            ✅ Contador nuevo = 0
+       2.Usuario nuevo entra a ConsultaScreen por primera vez en esa sesión
+            ✅ Contador antiguo = 0
+            ✅ Contador nuevo = 1
+       3. Usuario cierra sesión o reinicia la aplicación y vuelve a iniciar sesión, luego entra a ConsultaScreen
+            ✅ Contador antiguo = 1
+            ✅ Contador nuevo = 2
+       4. Usuario se registra, pero cierra la aplicación antes de iniciar sesión y entrar a ConsultaScreen
+          Al volver a iniciar sesión y entrar a ConsultaScreen:
+            ✅ Contador antiguo = 0
+            ✅ Contador nuevo = 1
+
+            ```//Condición de botón de pantalla Inicio para pasar a pantalla Consulta
+               Button(
+            onClick = {
+                if (name.value.isBlank() || email.value.isBlank()) {
+                    errorMessage.value = "Ambos campos son obligatorios."
+                } else {
+                    errorMessage.value = ""
+                    userViewModel.getUserByEmail(email.value) { user ->
+                        if (user != null) {
+                            // Si el contador es 0 (primer acceso), incrementamos el contador
+                            if (user.accessCount == 0) {
+                                userViewModel.incrementAccessCount(email.value)
+                            }
+
+                            // Navegar a la pantalla de consulta del usuario
+                            navigateToConsultaUser(navController, user)
+                        } else {
+                            // Si el usuario no existe, navegar a la pantalla de registro
+                            navigateToRegistroUser(navController)
+                        }
+                    }
+                }
+            },
+            modifier = Modifier.fillMaxWidth()
+             ) {
+            Text("Inicio de Sesión")
+            }
+            ```
+    - Implementación biblioteca Coli:
+      
+        ! Coil es una biblioteca de carga de imágenes para Jetpack Compose, 
+          que permite cargar imágenes desde una URL¡
+ 
+        1. Implementar las depencias en el gragle 
+
+           ```
+             // Coil (para cargar imágenes desde URL)
+             implementation("io.coil-kt:coil-compose:2.2.0")
+    
+           ```
+        2. Importar donde se quiere mostrar  
+           
+            ``` 
+           import coil.compose.AsyncImage
+            ```
+         
+        3. Añadir: 
+        
+         ``` 
+    
+          // Mostrar la imagen de la película
+           AsyncImage(
+          model = "https://image.tmdb.org/t/p/w500${movie.poster_path}", // URL completa de la imagen
+          contentDescription = "Poster de la película ${movie.title}",
+          modifier = Modifier.fillMaxWidth()
+          )
+    
+         ``` 
+           !movie.poster_path es un identificador de la imagen de la película. Se concatena con la 
+            URL base de TMDB ("https://image.tmdb.org/t/p/w500") para formar la URL completa de la
+            imagen, que luego se muestra usando AsyncImage¡
+
+    -  Mejoras de las UIs:
+            
+    J.Compose te permite:
+
+        * Diseño moderno
+        * Un diseño optimizado, evitando recomposiciones innecesarias
+        * Animaciones fluidas
+        * Un manejo eficiente de estados con remember y viewModel.
+        * Una navegación limia con NavHost y AnimatedNavHost
+    
+      -  Implementación de APIs de imagenes para trabajar con elementos propios de J.Compose 
+         e Hilos 
+    
+          * Patantall FinApp:
+    
+           1. Conexión con la API 
+     
+           ```val pexelsImages by mainViewModel.pexelsImages.collectAsState()
+    
+             LaunchedEffect(Unit) {
+              mainViewModel.getImagesFromPexels("nature")
+               }
+          ```
+           2. Se muestrans las imagenes con LazyRow
+         
+            ```val pexelsImages by mainViewModel.pexelsImages.collectAsState()
+                LazyRow(
+                  modifier = Modifier
+                  .fillMaxWidth()
+                  .height(200.dp)  
+                  .align(Alignment.BottomCenter)
+                  .padding(horizontal = 16.dp),
+                   horizontalArrangement = Arrangement.spacedBy(8.dp)
+                   ) {
+                        items(response.photos) { photo ->
+                         AsyncImage(
+                          model = photo.src.large,  // URL de la imagen obtenida de la API
+                           contentDescription = "Imagen de Pexels",
+                           modifier = Modifier
+                           .width(150.dp)
+                           .fillMaxHeight()
+                           .clip(RoundedCornerShape(8.dp)),
+                            contentScale = ContentScale.Crop
+                  )
+                 }
+                }
+          ```
+         ! Flujo de la actividad: 
+      
+            1. El MainViewModel hace la solicitud a la API(Pexels) y obtiene imágenes (de la categoría especificada)
+            2. pexelsImagenes cambia automáticamente en respuesta de la API
+            3. LazyRow itera sobre las imágenes obtenidas y con la ayuda de AsyncImage() las muestra
+            4. Con contentScale = ContentScale.Crop, las imágenes se ajustan para utilizar el espacio adecuado
+
+       * Patantall RegistroScreen: Uso de Hilos sobre la API, mostrando las imágenes en J.Compose
+
+          ! Utilizamos hilos (corutinas) para:
+            1. Manejar la llamada a la API sin bloquear la UI
+
+               ```
+               LaunchedEffect(Unit) {
+               mainViewModel.getRandomImages("nature")  
+                 }
+                 ```
+         
+            2. Actualizar dinámicamnete las imágenes en un carrusel infinito
+          
+                ```
+               LaunchedEffect(Unit) {
+               while (true) {
+               delay(3000) // Esperar 3 segundos
+               if (infiniteImages.isNotEmpty()) {
+               infiniteImages.add(infiniteImages.first()) // Agregar la primera imagen al final
+                infiniteImages.removeAt(0)  // Eliminar la primera imagen
+                  }
+                }
+                 }
+                 ```
+         ! Flujo de la actividad: 
+    
+            1. Llamamos a la API 
+            2. Mostramos las imágenes en un Carrusel (InfiniteImageCarousel)
+            3. Rotación automática de Imágenes (Corutina en InfiniteImageCarousel)
+        

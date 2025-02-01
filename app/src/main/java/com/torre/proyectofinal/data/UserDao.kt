@@ -10,16 +10,11 @@ import androidx.room.Update
 @Dao
 interface UserDao {
 
-    // La anotación @Insert se utiliza para indicar que este método es responsable de insertar un objeto User en la base de datos.
-    // La palabra clave 'suspend' permite que este método sea ejecutado de forma asincrónica utilizando coroutines.
     @Insert
     suspend fun insert(user: User)
 
-    // La anotación @Query se usa para definir una consulta SQL que se ejecutará contra la base de datos.
-    // En este caso, la consulta "SELECT * FROM user" obtiene todos los registros de la tabla "user".
-    // Al ser un método suspend, también será ejecutado de forma asincrónica.
     @Query("SELECT * FROM user")
-    suspend fun getAllUsers(): List<User> // Devuelve una lista de usuarios (objetos User)
+    suspend fun getAllUsers(): List<User>
 
     @Query("SELECT * FROM user WHERE email = :email LIMIT 1")
     suspend fun getUserByEmail(email: String): User?
@@ -27,9 +22,18 @@ interface UserDao {
     @Query("UPDATE user SET accessCount = accessCount + 1 WHERE email = :email")
     suspend fun incrementAccessCount(email: String)
 
+    @Query("UPDATE user SET accessCount = :newCount WHERE email = :email")
+    suspend fun updateAccessCount(email: String, newCount: Int)
+
     @Query("UPDATE user SET registrationDate = :newDate WHERE email = :email")
     suspend fun updateUserRegistrationDate(email: String, newDate: String)
 
     @Update
     suspend fun update(user: User)
+
+    @Query("UPDATE user SET previousAccessCount = accessCount, accessCount = accessCount + 1 WHERE email = :email")
+    suspend fun updateAccessCounts(email: String)
+
+    @Query("UPDATE user SET accessCount = :newCount WHERE email = :email")
+    suspend fun setAccessCount(email: String, newCount: Int)
 }
